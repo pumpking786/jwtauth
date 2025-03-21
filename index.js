@@ -15,16 +15,28 @@ app.use(express.json());
 const db = mysql.createPool({
   host: "localhost",
   user: "root",
-  password: "",
+  password: "password",
   database: "jwt_auth",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
 });
 
-// Middleware to authenticate JWT tokens
+// // Middleware to authenticate JWT tokens
+// const authenticateJWT = (req, res, next) => {
+//   const token = req.header("Authorization")?.split(" ")[1]; // Extract token
+//   if (!token) return res.status(401).send("Access denied. No token provided.");
+
+//   jwt.verify(token, SECRET_KEY, (err, user) => {
+//     if (err) return res.status(403).send("Invalid token.");
+//     req.user = user; // Store user in request object
+//     next();
+//   });
+// };
+
+// Middleware to authenticate JWT tokens from cookies
 const authenticateJWT = (req, res, next) => {
-  const token = req.header("Authorization")?.split(" ")[1]; // Extract token
+  const token = req.cookies.auth_token; // Extract token from cookies
   if (!token) return res.status(401).send("Access denied. No token provided.");
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
@@ -33,6 +45,7 @@ const authenticateJWT = (req, res, next) => {
     next();
   });
 };
+
 
 // Register a user (only for testing)
 // (async () => {
@@ -86,7 +99,35 @@ app.post("/signup",
   
 
 
-// POST /login - User login
+// // POST /login - User login
+// app.post("/login", async (req, res) => {
+//   const { username, password } = req.body;
+
+//   try {
+//     const [results] = await db.execute(
+//       "SELECT * FROM users WHERE username = ?",
+//       [username]
+//     );
+
+//     if (results.length === 0)
+//       return res.status(400).send("Invalid username or password");
+
+//     const user = results[0];
+//     const isValid = await bcrypt.compare(password, user.password);
+//     if (!isValid) return res.status(400).send("Invalid username or password");
+
+//     const token = jwt.sign(
+//       { id: user.id, username: user.username },
+//       SECRET_KEY,
+//       { expiresIn: "1h" }
+//     );
+//     res.json({ token });
+//   } catch (err) {
+//     res.status(500).send("Database query error");
+//   }
+// });
+
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -108,11 +149,23 @@ app.post("/login", async (req, res) => {
       SECRET_KEY,
       { expiresIn: "1h" }
     );
-    res.json({ token });
+
+    // Optionally, set the token in a cookie
+    res.cookie("auth_token", token, {
+      httpOnly: true, // Important to set the cookie as httpOnly to prevent XSS
+      secure: process.env.NODE_ENV === "production", // Set secure flag in production
+      maxAge: 3600000, // 1 hour
+    });
+
+    // Redirect to /getusers after successful login
+    res.redirect("/getusers");
+
   } catch (err) {
     res.status(500).send("Database query error");
   }
 });
+
+
 
 // GET /getusers - Protected route
 app.get("/getusers", authenticateJWT, async (req, res) => {
