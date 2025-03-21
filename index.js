@@ -15,7 +15,7 @@ app.use(express.json());
 const db = mysql.createPool({
   host: "localhost",
   user: "root",
-  password: "",
+  password: "password",
   database: "jwt_auth",
   waitForConnections: true,
   connectionLimit: 10,
@@ -51,6 +51,41 @@ const authenticateJWT = (req, res, next) => {
 //   }
 // })();
 
+
+// POST /signup - User registration (signup)
+app.post("/signup", 
+    body("username").notEmpty().withMessage("Username is required"), 
+    body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"), 
+    async (req, res) => {
+      const result = validationResult(req);
+      if (!result.isEmpty()) {
+        return res.status(400).json({ errors: result.array() });
+      }
+  
+      const { username, password } = req.body;
+  
+      try {
+        // Check if the username already exists in the database
+        const [existingUser] = await db.execute("SELECT * FROM users WHERE username = ?", [username]);
+        if (existingUser.length > 0) {
+          return res.status(400).send("Username already taken");
+        }
+  
+        // Hash the password before storing it
+        const hashedPassword = await bcrypt.hash(password, 10);
+  
+        // Insert new user into the 'users' table
+        await db.execute("INSERT INTO users (username, password) VALUES (?, ?)", [username, hashedPassword]);
+  
+        res.json({ message: "User registered successfully!" });
+      } catch (err) {
+        res.status(500).send("Database query error");
+      }
+    }
+  );
+  
+
+
 // POST /login - User login
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
@@ -82,7 +117,7 @@ app.post("/login", async (req, res) => {
 // GET /getusers - Protected route
 app.get("/getusers", authenticateJWT, async (req, res) => {
   try {
-    const [results] = await db.execute("SELECT * FROM user_details ", [
+    const [results] = await db.execute("SELECT * FROM user_details WHERE user_id=? ", [
       req.user.id,
     ]);
     res.json(results);
