@@ -34,14 +34,20 @@ const db = mysql.createPool({
 
 // Middleware to authenticate JWT tokens
 const authenticateJWT = (req, res, next) => {
-  const token = req.session.token
-  if (!token) return res.status(401).send("Access denied. No token provided.");
+  try{
 
-  jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.status(403).send("Invalid token.");
-    req.user = user; // Store user in request object
-    next();
-  });
+    const token = req.session.token
+    if (!token) return res.status(401).send("Access denied. No token provided.");
+  
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+      if (err) return res.status(403).send("Invalid token.");
+      req.user = user; // Store user in request object
+      next();
+    });
+  }
+  catch(err){
+    res.status(402).send("Error")
+  }
 };
 
 
@@ -175,7 +181,7 @@ app.post(
 
 // PUT /edit/:name - Edit user details (Protected)
 app.put(
-  "/edit/:name",
+  "/edit/:id",
   authenticateJWT, // Added authentication
   body("email").isEmail(),
   body("name").notEmpty(),
@@ -188,13 +194,13 @@ app.put(
 
     try {
       const [results] = await db.execute(
-        "UPDATE user_details SET email = ?, name = ?, age = ? WHERE name = ? AND user_id = ?",
+        "UPDATE user_details SET email = ?, name = ?, age = ? WHERE id = ? AND user_id = ?",
         [email, name, age, req.params.name, req.user.id]
       );
 
       if (results.affectedRows === 0)
         return res.status(404).send("User not found");
-      res.json({ message: `${name} updated`, user: { email, name, age } });
+      res.json({ message: `${id} updated`, user: { email, name, age } });
     } catch (err) {
       res.status(500).send("Database query error");
     }
