@@ -1,16 +1,15 @@
 import React from 'react';
-import Header from './components/Header';
-function Layout({ children }) {
-  return (
-    <>
-      {/* Add your header here if needed */}
-      <Header/>
+import { Outlet } from 'react-router-dom';
+import Header from './components/Header'; // Assuming you have a Header component
 
-      {/* Main content */}
-      <main className="p-6">
-        {children} {/* Render any child components passed to Layout */}
+function Layout() {
+  return (
+    <div>
+      <Header /> {/* This renders your header */}
+      <main>
+        <Outlet /> {/* This is where the routed components (e.g., Login, Signup) will be rendered */}
       </main>
-    </>
+    </div>
   );
 }
 
