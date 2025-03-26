@@ -57,14 +57,14 @@ const authenticateJWT = (req, res, next) => {
 app.post("/signup", 
     body("username").notEmpty().withMessage("Username is required"), 
     body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"), 
-    async (req, res) => {
+    async (req, res, next) => {
       const result = validationResult(req);
       if (!result.isEmpty()) {
         return res.status(400).json({ errors: result.array() });
       }
   
       const { username, password } = req.body;
-  
+
       try {
         // Check if the username already exists in the database
         const [existingUser] = await db.execute("SELECT * FROM users WHERE username = ?", [username]);
@@ -81,6 +81,7 @@ app.post("/signup",
         res.json({ message: "User registered successfully!" });
       } catch (err) {
         res.status(500).send("Database query error");
+        return next();
       }
     }
   );
