@@ -6,11 +6,11 @@ const db = new sequelize("test", "root", "", {
 
 // async function CreateTable() {
 //   try {
-//     // Drop the User table
+//     // Create tables(Other acts can be done through here)
 //     await db.sync();
 //     console.log("Db Table created!");
 //   } catch (err) {
-//     console.log("Error dropping User table", err.message);
+//     console.log("Error creating table", err.message);
 //   }
 // }
 
