@@ -1,26 +1,17 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
 const cors = require("cors");
-const bcrypt = require("bcryptjs");
-const db = require("./config/db");
-const User = require("./models/User");
-const Blog = require("./models/Blog");
-const mysql = require("mysql2/promise"); // Use promise-based MySQL
+
 const { body, validationResult } = require("express-validator");
-const session = require("express-session");
 const blogController = require("./controllers/BlogController");
 const userController = require("./controllers/UserController");
-const authenticateJWT=require("./middleware/authenticateJWT")
-const sessionMiddleware=require("./middleware/session")
-const { where } = require("sequelize");
+const authenticateJWT = require("./middleware/authenticateJWT");
+const sessionMiddleware = require("./middleware/session");
 const app = express();
-
-const SECRET_KEY = "your_secret_key"; // Secret key for signing the JWT
 
 app.use(cors());
 app.use(express.json());
 
-app.use(sessionMiddleware());  // Apply session middleware here
+app.use(sessionMiddleware()); // Apply session middleware here
 
 // User Routes
 app.post(
