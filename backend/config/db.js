@@ -4,6 +4,19 @@ const db = new sequelize("test", "root", "", {
   dialect: "mysql",
 });
 
+// async function CreateTable() {
+//   try {
+//     // Drop the User table
+//     await db.sync();
+//     console.log("Db Table created!");
+//   } catch (err) {
+//     console.log("Error dropping User table", err.message);
+//   }
+// }
+
+// // Call the function for the table
+// CreateTable();
+
 const connection = async () => {
   try {
     await db.authenticate();
