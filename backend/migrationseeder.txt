@@ -1,0 +1,45 @@
+- models/                             # Folder containing Sequelize model definitions
+  - User.js                           # Sequelize model for the User table
+  - Blog.js                           # Sequelize model for the Blog table
+- config/                             # Folder containing configuration files
+  - db.js                             # Database configuration and Sequelize instance
+- controllers/                        # Folder for your API logic
+  - userController.js                 # Controller for handling user-related operations
+  - blogController.js                 # Controller for handling blog-related operations
+- middleware/                         # Folder for middleware logic
+  - authenticateJWT.js                # Middleware for JWT authentication
+  - session.js                        # Middleware for session management
+- app.js (or server.js)               # Main entry point for your Node.js application 
+this is my folder structure and i used orm sequelize and my config/db.js looks like this:
+const sequelize = require("sequelize")
+const db=new sequelize('test','root','password',{
+    host: 'localhost',
+    dialect: 'mysql'
+})
+
+
+// async function CreateTable() {
+//   try {
+//     // Create tables(Other acts can be done through here)
+//     await db.sync();
+//     console.log("Db Table created!");
+//   } catch (err) {
+//     console.log("Error creating table", err.message);
+//   }
+// }
+
+// // Call the function for the table
+// CreateTable();
+
+
+const connection=async()=>{
+    try {
+        await db.authenticate();
+        console.log('Connection has been established successfully.');
+      } catch (error) {
+        console.error('Unable to connect to the database:', error.message);
+      }
+}
+connection();
+
+module.exports=db; So If i want to use sequelize-cli for migration and seeders what should i do with db.js as npx sequelize-cli init creates config, contains config file, which tells CLI how to connect with database so don't i need db.js to join with database?? Think for 5 seconds and answer me. Now do you get it?
