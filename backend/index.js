@@ -10,6 +10,8 @@ const { body, validationResult } = require("express-validator");
 const session = require("express-session");
 const blogController = require("./controllers/BlogController");
 const userController = require("./controllers/UserController");
+const authenticateJWT=require("./middleware/authenticateJWT")
+const sessionMiddleware=require("./middleware/session")
 const { where } = require("sequelize");
 const app = express();
 
@@ -18,45 +20,7 @@ const SECRET_KEY = "your_secret_key"; // Secret key for signing the JWT
 app.use(cors());
 app.use(express.json());
 
-// async function CreateTable() {
-//   try {
-//     // Drop the User table
-//     await db.sync();
-//     console.log("Db Table created!");
-//   } catch (err) {
-//     console.log("Error dropping User table", err.message);
-//   }
-// }
-
-// // Call the function for the table
-// CreateTable();
-
-//Session
-app.use(
-  session({
-    secret: "your-session-secret", // Secret for signing session IDs
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }, // In production, you should set this to true with HTTPS
-  })
-);
-
-// Middleware to authenticate JWT tokens
-const authenticateJWT = (req, res, next) => {
-  try {
-    const token = req.session.token;
-    if (!token)
-      return res.status(401).send("Access denied. No token provided.");
-
-    jwt.verify(token, SECRET_KEY, (err, user) => {
-      if (err) return res.status(403).send("Invalid token.");
-      req.user = user; // Store user in request object
-      next();
-    });
-  } catch (err) {
-    res.status(402).send("Error");
-  }
-};
+app.use(sessionMiddleware());  // Apply session middleware here
 
 // User Routes
 app.post(
