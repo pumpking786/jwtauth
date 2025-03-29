@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
-const User = require("../models/User");
+const { Blog, User } = require("../models"); // Import from models/index.js
 
 const SECRET_KEY = "your_secret_key"; // Secret key for signing the JWT
 

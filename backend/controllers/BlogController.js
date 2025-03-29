@@ -1,4 +1,4 @@
-const Blog = require("../models/Blog");
+const { Blog, User } = require("../models"); // Import from models/index.js
 const { validationResult } = require("express-validator");
 
 // Get all blogs
