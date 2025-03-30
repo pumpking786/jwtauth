@@ -19,8 +19,8 @@ exports.addBlog = async (req, res) => {
       return res.status(400).json({ errors: result.array() });
     }
 
-    const { title, description } = req.body;
-    await Blog.create({ title, description, user_id: req.user.id });
+    const { title, description, writer } = req.body;
+    await Blog.create({ title, description, writer, user_id: req.user.id });
 
     res.json({
       message: "Blog added successfully",
@@ -40,7 +40,7 @@ exports.editBlog = async (req, res) => {
       return res.status(400).json({ errors: result.array() });
     }
 
-    const { title, description } = req.body;
+    const { title, description, writer } = req.body;
     const blogId = req.params.id;
 
     const blog = await Blog.findOne({
@@ -52,7 +52,7 @@ exports.editBlog = async (req, res) => {
         .json({ message: "Blog not found or unauthorized" });
     }
 
-    await blog.update({ title, description });
+    await blog.update({ title, description, writer });
     res.json({ message: `Blog ${blogId} updated successfully`, blog });
   } catch (err) {
     console.error("Error updating blog:", err);

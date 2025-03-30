@@ -1,4 +1,5 @@
 const { DataTypes } = require("sequelize");
+const { defaultValueSchemable } = require("sequelize/lib/utils");
 
 module.exports = (sequelize) => {
   const Blog = sequelize.define(
@@ -16,6 +17,15 @@ module.exports = (sequelize) => {
       description: {
         type: DataTypes.TEXT,
         allowNull: false,
+      },
+      writer: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+      },
+      time: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
       },
       user_id: {
         type: DataTypes.INTEGER,

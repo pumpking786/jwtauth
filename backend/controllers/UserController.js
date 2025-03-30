@@ -12,7 +12,7 @@ exports.signup = async (req, res, next) => {
     return res.status(400).json({ errors: result.array() });
   }
 
-  const { email, username, password } = req.body;
+  const { email, username, password, age } = req.body;
 
   try {
     const existingUser = await User.findOne({ where: { username } });
@@ -21,7 +21,7 @@ exports.signup = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await User.create({ email, username, password: hashedPassword });
+    await User.create({ email, username, password: hashedPassword, age });
 
     res.json({ message: "User registered successfully!" });
   } catch (err) {
