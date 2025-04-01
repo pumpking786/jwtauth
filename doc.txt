@@ -1,0 +1,3 @@
+https://www.atlassian.com/blog/atlassian-engineering/using-protobuf-to-make-jira-cloud-faster 
+https://www.youtube.com/watch?v=9ttYs4dXc9k&ab_channel=BetterDevwithAnubhav
+https://www.youtube.com/watch?v=bT3gzNnOJPc&ab_channel=RachitJain
