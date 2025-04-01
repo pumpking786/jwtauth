@@ -9,7 +9,7 @@ const SECRET_KEY = "your_secret_key"; // Secret key for signing the JWT
 exports.signup = async (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
-    return res.status(400).json({ errors: result.array() });
+    return next({ message: "Validation errors", statusCode: 400 }); // Pass validation error to next
   }
 
   const { email, username, password, age } = req.body;
@@ -17,7 +17,7 @@ exports.signup = async (req, res, next) => {
   try {
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
-      return res.status(400).send("Username already taken");
+      return next({ message: "Username already taken", statusCode: 400 }); // Pass error to next
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -25,29 +25,25 @@ exports.signup = async (req, res, next) => {
 
     res.json({ message: "User registered successfully!" });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Database query error");
-    return next();
+    next({ message: "Database query error", statusCode: 500 }); // Pass DB error to next
   }
 };
 
 // User Login
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
     const user = await User.findOne({ where: { username } });
 
     if (!user) {
-      console.log("User not found");
-      return res.status(400).send("Invalid username or password");
+      return next({ message: "Invalid username or password", statusCode: 400 }); // Pass error to next
     }
 
     const isValid = await bcrypt.compare(password, user.password);
 
     if (!isValid) {
-      console.log("Invalid password");
-      return res.status(400).send("Invalid username or password");
+      return next({ message: "Invalid username or password", statusCode: 400 }); // Pass error to next
     }
 
     const token = jwt.sign(
@@ -60,21 +56,20 @@ exports.login = async (req, res) => {
 
     res.json({ message: "Login Successful", token });
   } catch (err) {
-    console.error("Error during login:", err);
-    res.status(500).send("Database query error");
+    next({ message: "Error during login", statusCode: 500 }); // Pass error to next
   }
 };
 
 // User Logout
-exports.logout = async (req, res) => {
+exports.logout = async (req, res, next) => {
   try {
     req.session.destroy((err) => {
       if (err) {
-        return res.send("Error");
+        return next({ message: "Error during logout", statusCode: 500 }); // Pass error to next
       }
-      res.status(400).json({ message: "Logout Successful" });
+      res.status(200).json({ message: "Logout Successful" });
     });
   } catch (error) {
-    res.status(402).json("Error in logout");
+    next({ message: "Error during logout", statusCode: 500 }); // Pass error to next
   }
 };
