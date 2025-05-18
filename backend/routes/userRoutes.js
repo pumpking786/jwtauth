@@ -13,6 +13,9 @@ router.post(
     body("password")
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long"),
+    body("age")
+      .notEmpty().withMessage("Age is required")
+      .isInt({ min: 0 }).withMessage("Age must be a non-negative number"),
   ],
   userController.signup
 );
