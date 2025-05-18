@@ -6,10 +6,17 @@ const { Blog, User } = require("../models"); // Import from models/index.js
 const SECRET_KEY = "your_secret_key"; // Secret key for signing the JWT
 
 // User Signup
+
+
 exports.signup = async (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
-    return next({ message: "Validation errors", statusCode: 400 });
+    const firstError = result.array()[0]; // Get the first error only
+    return res.status(400).json({
+      error: {
+        message: firstError.msg
+      }
+    });
   }
 
   const { email, username, password, age } = req.body;
@@ -17,11 +24,11 @@ exports.signup = async (req, res, next) => {
   try {
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
-      return next({ message: "Username already taken", statusCode: 400 });
+      return res.status(400).json({ message: "Username already taken" });
     }
 
     if (username === password) {
-      return next({ message: "Username and password can't be the same", statusCode: 400 });
+      return res.status(400).json({ message: "Username and password can't be the same" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
