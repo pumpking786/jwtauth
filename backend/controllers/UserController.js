@@ -9,7 +9,7 @@ const SECRET_KEY = "your_secret_key"; // Secret key for signing the JWT
 exports.signup = async (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
-    return next({ message: "Validation errors", statusCode: 400 }); // Pass validation error to next
+    return next({ message: "Validation errors", statusCode: 400 });
   }
 
   const { email, username, password, age } = req.body;
@@ -17,17 +17,22 @@ exports.signup = async (req, res, next) => {
   try {
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
-      return next({ message: "Username already taken", statusCode: 400 }); // Pass error to next
+      return next({ message: "Username already taken", statusCode: 400 });
+    }
+
+    if (username === password) {
+      return next({ message: "Username and password can't be the same", statusCode: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({ email, username, password: hashedPassword, age });
 
-    res.json({ message: "User registered successfully!" });
+    res.status(201).json({ message: "User registered successfully!" });
   } catch (err) {
-    next({ message: "Database query error", statusCode: 500 }); // Pass DB error to next
+    next({ message: "Database query error", statusCode: 500 });
   }
 };
+
 
 // User Login
 exports.login = async (req, res, next) => {
